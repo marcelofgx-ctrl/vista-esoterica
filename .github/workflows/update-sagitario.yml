@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   update-sagitario:
@@ -57,62 +56,40 @@ jobs:
             > /tmp/vista-esoterica/search.json
 
           python <<'PY'
-          import json, os, subprocess, sys
+          import json, os, sys
 
           expected_channel = os.environ['CHANNEL_ID']
           match_terms = ('sagitario', 'sagittarius')
           data = json.load(open('/tmp/vista-esoterica/search.json', encoding='utf-8'))
           entries = data.get('entries') or []
 
-          candidate_ids = []
+          selected_entry = None
           for entry in entries:
               video_id = entry.get('id')
-              title = (entry.get('title') or '').lower()
-              if video_id and any(term in title for term in match_terms):
-                  candidate_ids.append(video_id)
+              title = (entry.get('title') or '')
+              if video_id and any(term in title.lower() for term in match_terms):
+                  selected_entry = entry
+                  break
 
-          if not candidate_ids:
-              candidate_ids = [e.get('id') for e in entries[:30] if e.get('id')]
-
-          selected = None
-          for video_id in candidate_ids:
-              url = f'https://www.youtube.com/watch?v={video_id}'
-              try:
-                  raw = subprocess.check_output(
-                      ['yt-dlp', '--skip-download', '--dump-single-json', url],
-                      text=True,
-                      stderr=subprocess.DEVNULL,
-                      timeout=90,
-                  )
-                  meta = json.loads(raw)
-              except Exception:
-                  continue
-
-              if meta.get('channel_id') != expected_channel:
-                  continue
-
-              haystack = ' '.join([
-                  meta.get('title') or '',
-                  meta.get('description') or '',
-                  ' '.join(meta.get('tags') or []),
-              ]).lower()
-              if not any(term in haystack for term in match_terms):
-                  continue
-
-              selected = meta
-              break
-
-          if not selected:
+          if not selected_entry:
               print('No se encontro un video reciente de Sagitario/Sagittarius en el canal configurado.', file=sys.stderr)
               print('Titulos recientes vistos por yt-dlp:', file=sys.stderr)
               for entry in entries[:20]:
                   print(f"- {entry.get('title') or '(sin titulo)'} [{entry.get('id') or '?'}]", file=sys.stderr)
               sys.exit(2)
 
-          video_id = selected['id']
-          title = selected.get('title') or ''
-          video_url = selected.get('webpage_url') or f'https://www.youtube.com/watch?v={video_id}'
-          upload_date = selected.get('upload_date') or ''
+          video_id = selected_entry['id']
+          title = selected_entry.get('title') or ''
+          video_url = f'https://www.youtube.com/watch?v={video_id}'
+          upload_date = selected_entry.get('upload_date') or ''
+
+          selected = {
+              'id': video_id,
+              'title': title,
+              'webpage_url': video_url,
+              'upload_date': upload_date,
+              'channel_id': expected_channel,
+          }
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
               out.write(f'video_id={video_id}\n')
@@ -192,9 +169,12 @@ jobs:
           from faster_whisper import WhisperModel
           import glob
 
-          audio = glob.glob('/tmp/vista-esoterica/audio.*')[0]
+          audio_files = glob.glob('/tmp/vista-esoterica/audio.*')
+          if not audio_files:
+              raise RuntimeError('No se pudo obtener el audio del video')
+
           model = WhisperModel('base', device='cpu', compute_type='int8')
-          segments, info = model.transcribe(audio, language='es', vad_filter=True, beam_size=3)
+          segments, info = model.transcribe(audio_files[0], language='es', vad_filter=True, beam_size=3)
 
           parts = []
           for segment in segments:
@@ -219,8 +199,7 @@ jobs:
           import hashlib, json, os, re
           from datetime import datetime, timezone
 
-          transcript_path = '/tmp/vista-esoterica/transcript.txt'
-          transcript = open(transcript_path, encoding='utf-8').read()
+          transcript = open('/tmp/vista-esoterica/transcript.txt', encoding='utf-8').read()
           transcript = re.sub(r'\s+', ' ', transcript).strip()
           method = open('/tmp/vista-esoterica/method.txt', encoding='utf-8').read().strip()
           meta = json.load(open('/tmp/vista-esoterica/video.json', encoding='utf-8'))
@@ -233,8 +212,8 @@ jobs:
                   'channel_id': os.environ['CHANNEL_ID'],
                   'video_id': meta.get('id'),
                   'title': meta.get('title'),
-                  'video_url': meta.get('webpage_url') or f"https://www.youtube.com/watch?v={meta.get('id')}",
-                  'published_at': meta.get('upload_date'),
+                  'video_url': meta.get('webpage_url'),
+                  'published_at': meta.get('upload_date') or None,
               },
               'ingestion': {
                   'method': method,
@@ -272,18 +251,11 @@ jobs:
           git push origin HEAD:main
           echo 'changed=true' >> "$GITHUB_OUTPUT"
 
-      - name: Trigger site deploy
-        if: steps.commit.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run deploy-pages.yml --ref main
-
       - name: Summary
         run: |
           echo '### Actualizacion Sagitario' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Canal verificado: Beatriz · Tarot y Guía Espiritual' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Canal: Beatriz · Tarot y Guía Espiritual' >> "$GITHUB_STEP_SUMMARY"
           echo '- Video: ${{ steps.video.outputs.title }}' >> "$GITHUB_STEP_SUMMARY"
           echo '- Video ID: ${{ steps.video.outputs.video_id }}' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Resultado: transcripcion procesada localmente; no se publica la transcripcion completa.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Resultado: transcripcion obtenida y verificada por hash/conteo; el texto completo no se publica en el repo.' >> "$GITHUB_STEP_SUMMARY"
