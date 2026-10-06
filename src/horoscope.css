@@ -1,0 +1,104 @@
+.horoscope-home{
+  --cream:#f4ecdf;
+  --paper:#e8d7c2;
+  --ink-warm:#241913;
+  --wine:#4b2430;
+  --terracotta:#9d5d43;
+  --gold-warm:#c69a5f;
+  --sage:#7a826b;
+  max-width:1180px;
+  margin:0 auto;
+  padding:26px 0 64px;
+  color:#efe6da;
+}
+
+.horoscope-hero{
+  min-height:560px;
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr);
+  gap:34px;
+  align-items:center;
+  padding:48px 50px;
+  border:1px solid rgba(230,203,160,.12);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 82% 22%,rgba(195,139,91,.18),transparent 25%),
+    linear-gradient(135deg,#321b24 0%,#1b1616 48%,#151a17 100%);
+  box-shadow:0 28px 90px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035);
+  overflow:hidden;
+  position:relative;
+}
+
+.horoscope-hero:before{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background-image:radial-gradient(rgba(255,241,217,.20) .7px,transparent .7px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(90deg,transparent 4%,black 42%,black 100%);
+  opacity:.25;
+}
+
+.horoscope-hero-copy{position:relative;z-index:2;max-width:700px}
+.demo-pill{display:inline-flex;padding:6px 10px;border:1px solid rgba(229,199,151,.2);border-radius:999px;background:rgba(255,255,255,.035);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#d8c3a8;margin-bottom:22px}
+.horoscope-kicker{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#d4a96c;margin-bottom:14px}
+.horoscope-hero h1,.zodiac-section h2,.sign-title h2,.future-content h2{font-family:'Newsreader',serif;font-weight:500;letter-spacing:-.045em;line-height:.96;margin:0}
+.horoscope-hero h1{font-size:clamp(58px,7vw,88px);max-width:700px}
+.horoscope-hero-copy>p{max-width:620px;color:#cfc1b3;font-size:17px;line-height:1.75;margin:26px 0 30px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:11px}
+.horoscope-primary,.horoscope-secondary,.plain-tarot,.change-sign{border:0;cursor:pointer;transition:.17s transform,.17s background,.17s border-color,.17s color}
+.horoscope-primary{display:inline-flex;align-items:center;gap:9px;border-radius:999px;padding:13px 18px;background:#d8b57d;color:#24170f;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.horoscope-primary:hover{transform:translateY(-1px);background:#e4c38e}
+.horoscope-secondary{border:1px solid rgba(234,216,188,.15);border-radius:999px;padding:12px 17px;background:rgba(255,255,255,.025);color:#ddd0bf}
+.horoscope-secondary:hover{border-color:rgba(234,216,188,.3);background:rgba(255,255,255,.05)}
+
+.celestial-orbit{position:relative;width:min(390px,100%);aspect-ratio:1;margin:auto;border-radius:50%;background:radial-gradient(circle at center,rgba(201,147,93,.15),rgba(53,28,38,.18) 42%,transparent 68%)}
+.orbit{position:absolute;border:1px solid rgba(221,189,140,.18);border-radius:50%;inset:11%}.orbit-two{inset:25%;border-style:dashed;transform:rotate(23deg)}
+.orbit-one:after,.orbit-one:before{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:#d6ad72;box-shadow:0 0 22px rgba(214,173,114,.55)}
+.orbit-one:before{top:8%;left:22%}.orbit-one:after{right:4%;bottom:30%;width:5px;height:5px}
+.moon{position:absolute;left:50%;top:50%;transform:translate(-50%,-58%);font-size:96px;font-family:'Newsreader',serif;color:#e7cfaa;text-shadow:0 0 50px rgba(221,181,119,.2)}
+.star{position:absolute;color:#d8b57e}.star-a{top:15%;right:22%;font-size:19px}.star-b{bottom:18%;left:18%;font-size:24px}.star-c{top:28%;left:16%;font-size:40px}
+.orbit-copy{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);width:90%;text-align:center;display:grid;gap:5px}.orbit-copy small{font-size:8px;letter-spacing:.2em;color:#a89275}.orbit-copy strong{font-family:'Newsreader',serif;font-size:16px;font-weight:400;color:#d8c8b3}
+
+.editorial-strip{display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:12px;margin:16px 0 72px}
+.editorial-strip>div{min-height:150px;padding:22px;border:1px solid rgba(233,214,182,.10);border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.028),rgba(255,255,255,.012));display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-content:start}
+.editorial-strip>div>span{grid-row:1/3;color:#c8a36f;font-size:19px;margin-top:2px}.editorial-strip small{font-size:8px;letter-spacing:.16em;color:#8e968d;margin-bottom:8px}.editorial-strip strong{font-family:'Newsreader',serif;font-size:20px;line-height:1.24;font-weight:500;color:#e2d7c9}.editorial-strip button{grid-column:2;border:0;background:none;color:#c9a56f;text-align:left;padding:13px 0 0;cursor:pointer;font-size:12px}
+.tarot-teaser{background:linear-gradient(145deg,rgba(139,82,58,.14),rgba(80,43,54,.14))!important}
+
+.zodiac-section{scroll-margin-top:20px;margin-bottom:80px}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:30px}.section-heading h2{font-size:clamp(46px,6vw,70px)}.section-heading>p{max-width:490px;margin:0;color:#999d96;line-height:1.65;font-size:13px}
+.zodiac-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.zodiac-card{min-height:158px;border:1px solid rgba(235,216,183,.1);border-radius:18px;background:rgba(255,255,255,.018);color:#ddd4c8;cursor:pointer;padding:19px 12px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.18s transform,.18s border-color,.18s background,.18s box-shadow}
+.zodiac-card:hover{transform:translateY(-3px);border-color:rgba(214,174,111,.28);background:rgba(255,255,255,.032)}
+.zodiac-card.active{border-color:rgba(222,181,114,.48);background:linear-gradient(160deg,rgba(201,150,90,.12),rgba(95,53,55,.1));box-shadow:0 14px 34px rgba(0,0,0,.16)}
+.zodiac-glyph{font-size:34px;line-height:1;color:#d2aa72;margin-bottom:12px;font-family:serif}.zodiac-name{font-family:'Newsreader',serif;font-size:19px}.zodiac-card small{font-size:9px;color:#777f78;margin-top:4px}.zodiac-card em{font-style:normal;text-transform:uppercase;letter-spacing:.12em;font-size:7px;color:#9b8261;margin-top:11px}
+
+.sign-reading{scroll-margin-top:20px;border:1px solid rgba(230,207,171,.13);border-radius:30px;overflow:hidden;background:linear-gradient(145deg,#171b18,#151413);box-shadow:0 30px 90px rgba(0,0,0,.22);margin-bottom:80px}
+.sign-reading.fuego{background:radial-gradient(circle at 90% 8%,rgba(156,75,43,.15),transparent 26%),linear-gradient(145deg,#1c1915,#171413)}
+.sign-reading.agua{background:radial-gradient(circle at 90% 8%,rgba(63,92,105,.17),transparent 26%),linear-gradient(145deg,#151a1a,#171416)}
+.sign-reading.aire{background:radial-gradient(circle at 90% 8%,rgba(113,109,148,.15),transparent 26%),linear-gradient(145deg,#17191c,#151416)}
+.sign-reading.tierra{background:radial-gradient(circle at 90% 8%,rgba(111,109,66,.16),transparent 26%),linear-gradient(145deg,#191a15,#171513)}
+.sign-reading-head{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;padding:30px 34px;border-bottom:1px solid rgba(255,255,255,.055)}
+.sign-monogram{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(215,177,116,.25);background:rgba(255,255,255,.018);box-shadow:inset 0 0 35px rgba(211,170,105,.05)}.sign-monogram span{font-size:38px;color:#d7b476}
+.sign-title h2{font-size:52px}.sign-title p{margin:7px 0 0;color:#858b84;font-size:11px}.sign-title p strong{font-weight:500;color:#b2a693}
+.change-sign{border:1px solid rgba(225,204,173,.12);background:transparent;color:#918b81;border-radius:999px;padding:9px 12px;font-size:10px}.change-sign:hover{color:#d5c8b7;border-color:rgba(225,204,173,.26)}
+.sign-lead{max-width:780px;margin:0 auto;text-align:center;padding:62px 32px 48px}.sign-lead>span{font-size:9px;letter-spacing:.18em;color:#b29267}.sign-lead h3{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(40px,5vw,62px);line-height:1.02;letter-spacing:-.035em;margin:15px 0 20px}.sign-lead p{margin:0 auto;color:#bbb3a8;line-height:1.85;font-size:16px;max-width:720px}
+.reading-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.055);border-top:1px solid rgba(255,255,255,.055);border-bottom:1px solid rgba(255,255,255,.055)}.reading-grid article{background:#161916;padding:34px 30px;min-height:240px}.reading-grid article:nth-child(2){background:#171816}.reading-grid small{display:block;font-size:8px;letter-spacing:.17em;color:#9d835d;margin:16px 0 14px}.reading-grid p{margin:0;color:#ada99f;line-height:1.78;font-size:13px}.reading-icon{font-family:'Newsreader',serif;font-size:28px;color:#c5a36f}
+.ritual-card{margin:24px 32px 0;padding:25px 28px;border:1px solid rgba(213,177,117,.13);border-radius:18px;background:linear-gradient(90deg,rgba(135,89,56,.11),rgba(255,255,255,.012));display:flex;justify-content:space-between;align-items:center;gap:20px}.ritual-card small{font-size:8px;letter-spacing:.17em;color:#a9875d}.ritual-card p{font-family:'Newsreader',serif;font-size:20px;color:#d7cfc2;margin:7px 0 0;line-height:1.4}.ritual-card>span{font-size:26px;color:#c69f68}
+.tarot-bridge{margin:24px 32px 32px;min-height:350px;border-radius:22px;background:linear-gradient(135deg,#42252d,#23191a 55%,#171915);border:1px solid rgba(220,184,127,.17);display:grid;grid-template-columns:240px 1fr;align-items:center;gap:34px;padding:36px 44px;overflow:hidden;position:relative}.tarot-bridge:after{content:'✦';position:absolute;right:-18px;top:-55px;font-size:180px;color:rgba(219,182,122,.025)}
+.tarot-mini-card{width:170px;height:274px;margin:auto;border-radius:15px;border:1px solid rgba(220,184,127,.42);background:linear-gradient(145deg,#242a24,#121512 70%);box-shadow:0 24px 50px rgba(0,0,0,.35);display:grid;place-items:center;position:relative;transform:rotate(-4deg)}.tarot-mini-card:after{content:'';position:absolute;inset:11px;border:1px solid rgba(220,184,127,.25);border-radius:10px}.tarot-mini-card span{font-size:38px;color:#b9945d}
+.tarot-bridge-copy{position:relative;z-index:1}.tarot-bridge-copy h3{font-family:'Newsreader',serif;font-weight:500;font-size:40px;line-height:1.05;margin:0 0 14px}.tarot-bridge-copy>p{max-width:600px;color:#b8aca0;line-height:1.7;font-size:13px}.tarot-bridge blockquote{margin:20px 0 24px;padding:13px 0 13px 18px;border-left:2px solid #bb915c;font-family:'Newsreader',serif;font-size:20px;line-height:1.4;color:#dfd2c0}.plain-tarot{display:block;margin-top:12px;background:none;color:#9f9487;padding:7px 0;font-size:11px;text-decoration:underline;text-underline-offset:3px}.plain-tarot:hover{color:#d4c8b8}
+
+.future-content{text-align:center;max-width:820px;margin:0 auto 72px;padding:20px}.future-content h2{font-size:clamp(46px,5.5vw,68px)}.future-content>p{max-width:720px;margin:22px auto;color:#969b94;line-height:1.8;font-size:14px}.future-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:26px}.future-chips span{border:1px solid rgba(220,200,170,.11);border-radius:999px;padding:8px 11px;color:#aaa298;background:rgba(255,255,255,.015);font-size:10px}
+.horoscope-footer{border-top:1px solid rgba(255,255,255,.06);padding:24px 4px 0;display:flex;justify-content:space-between;gap:20px;align-items:center;color:#686f69}.horoscope-footer span{font-size:9px;letter-spacing:.18em;color:#917a5b}.horoscope-footer p{font-size:9px;margin:0}
+
+@media(max-width:900px){
+  .horoscope-hero{grid-template-columns:1fr;padding:42px 34px}.celestial-orbit{width:300px}.editorial-strip{grid-template-columns:1fr 1fr}.tarot-teaser{grid-column:1/-1}.zodiac-grid{grid-template-columns:repeat(4,1fr)}.section-heading{align-items:start;flex-direction:column}.reading-grid{grid-template-columns:1fr}.reading-grid article{min-height:0}.tarot-bridge{grid-template-columns:170px 1fr;padding:30px}.tarot-mini-card{width:135px;height:220px}
+}
+
+@media(max-width:620px){
+  .horoscope-home{padding-top:16px}.horoscope-hero{min-height:0;padding:34px 22px;border-radius:22px}.horoscope-hero h1{font-size:52px}.horoscope-hero-copy>p{font-size:15px;line-height:1.65}.celestial-orbit{width:240px}.moon{font-size:72px}.editorial-strip{grid-template-columns:1fr;margin-bottom:58px}.tarot-teaser{grid-column:auto}.zodiac-grid{grid-template-columns:repeat(3,1fr);gap:7px}.zodiac-card{min-height:128px;border-radius:15px;padding:14px 8px}.zodiac-glyph{font-size:28px;margin-bottom:8px}.zodiac-name{font-size:16px}.zodiac-card small{font-size:7px}.section-heading h2{font-size:48px}.section-heading>p{font-size:12px}.sign-reading{border-radius:22px}.sign-reading-head{grid-template-columns:auto 1fr;padding:22px 20px}.sign-monogram{width:58px;height:58px}.sign-monogram span{font-size:28px}.sign-title h2{font-size:38px}.change-sign{grid-column:1/-1;justify-self:start}.sign-lead{padding:44px 22px 36px}.sign-lead h3{font-size:42px}.sign-lead p{font-size:14px}.reading-grid article{padding:28px 22px}.ritual-card{margin:18px 18px 0;padding:20px}.ritual-card p{font-size:18px}.tarot-bridge{margin:18px;grid-template-columns:1fr;padding:28px 22px;text-align:center}.tarot-mini-card{width:108px;height:176px}.tarot-bridge-copy h3{font-size:34px}.tarot-bridge blockquote{text-align:left;font-size:18px}.tarot-bridge .horoscope-primary{justify-content:center;width:100%}.plain-tarot{margin-left:auto;margin-right:auto}.future-content h2{font-size:46px}.horoscope-footer{flex-direction:column;align-items:flex-start}
+}
+
+@media(max-width:380px){.zodiac-grid{grid-template-columns:repeat(2,1fr)}.horoscope-hero h1{font-size:46px}}
