@@ -20,6 +20,10 @@ type Sign = {
   ritual:string;
   question:string;
   accent:string;
+  sourceTitle?:string;
+  sourceUrl?:string;
+  sourceDate?:string;
+  sourceNote?:string;
 };
 
 const signs:Sign[] = [
@@ -31,7 +35,7 @@ const signs:Sign[] = [
   {key:'virgo',name:'Virgo',glyph:'♍',dates:'23 ago · 22 sep',element:'Tierra',mood:'Orden con humanidad',title:'Mejorar algo no exige castigarlo primero.',summary:'Esta lectura de ejemplo pone el foco en ajustes, hábitos y pequeñas decisiones. Hay mucho que puede ordenarse, siempre que la exigencia no se disfrace de responsabilidad.',love:'No todo necesita ser corregido para ser cuidado. Prestá atención a los gestos que ya funcionan.',work:'Un cambio pequeño de sistema puede rendir más que una jornada de sobreesfuerzo.',inner:'Tu discernimiento es valioso cuando también sabe reconocer lo suficiente.',ritual:'Cerrá una tarea al 90% y observá qué parte de vos insiste en que todavía “no cuenta”.',question:'¿Qué puedo mejorar sin convertir mi valor personal en una evaluación permanente?',accent:'tierra'},
   {key:'libra',name:'Libra',glyph:'♎',dates:'23 sep · 22 oct',element:'Aire',mood:'Equilibrio que decide',title:'La armonía también necesita una posición.',summary:'Puede haber una situación donde sostener todas las perspectivas ya no alcance. Esta lectura de ejemplo sugiere que elegir no rompe necesariamente el equilibrio: a veces lo crea.',love:'Una conversación honesta puede incomodar un poco y, al mismo tiempo, hacer el vínculo más verdadero.',work:'Revisá una decisión que venís consultando demasiado. Tal vez ya tenés la información suficiente.',inner:'Evitar el conflicto puede convertirse en una forma silenciosa de abandonar tu propio criterio.',ritual:'Escribí qué elegirías si no tuvieras que convencer a nadie de que tu elección es razonable.',question:'¿Qué decisión necesito tomar aunque no pueda dejar a todos conformes?',accent:'aire'},
   {key:'escorpio',name:'Escorpio',glyph:'♏',dates:'23 oct · 21 nov',element:'Agua',mood:'Profundidad sin encierro',title:'Mirar la sombra no significa vivir dentro de ella.',summary:'Algo pide profundidad, verdad y quizá un cierre. La propuesta simbólica no es intensificarlo todo, sino reconocer qué transformación ya comenzó y qué resistencia todavía la acompaña.',love:'Hay espacio para nombrar deseo, miedo o resentimiento sin convertirlos automáticamente en veredicto.',work:'Un problema complejo puede requerir ir a la causa, no seguir corrigiendo síntomas.',inner:'Tu percepción gana libertad cuando deja de necesitar controlar todo lo que descubre.',ritual:'Nombrá una verdad que ya sabés y después escribí qué acción pequeña sería coherente con ella.',question:'¿Qué verdad estoy listo para reconocer sin usarla para castigarme ni controlar?',accent:'agua'},
-  {key:'sagitario',name:'Sagitario',glyph:'♐',dates:'22 nov · 21 dic',element:'Fuego',mood:'Horizonte y sentido',title:'El próximo horizonte empieza con un paso real.',summary:'Hay deseo de ampliar, comprender o empezar otra etapa. Esta lectura de ejemplo sugiere cuidar una diferencia importante: visión no es fuga. Lo nuevo gana fuerza cuando puede encarnarse en una decisión concreta.',love:'Un vínculo necesita espacio para crecer, pero también presencia para no convertirse en promesa abstracta.',work:'Una posibilidad distinta puede ser fértil si la tratás como proyecto y no solamente como esperanza.',inner:'La búsqueda de sentido se vuelve más poderosa cuando no exige tener todo el mapa antes de empezar.',ritual:'Elegí una posibilidad que te entusiasme y definí cuál sería su primer paso de menos de una hora.',question:'¿Qué posibilidad nueva merece que deje de imaginarla y empiece a darle una forma concreta?',accent:'fuego'},
+  {key:'sagitario',name:'Sagitario',glyph:'♐',dates:'22 nov · 21 dic',element:'Fuego',mood:'Claridad, corte y avance',title:'Lo que se cae puede estar abriendo espacio para algo más firme.',summary:'La lectura marca un momento en que la falta de constancia —propia o ajena— ya no puede sostener situaciones a medias. Algo pide mirar hechos antes que promesas: cuando un vínculo, una expectativa o un proyecto se repite sin compromiso, la claridad aparece al dejar de perseguir explicaciones y empezar a decidir desde lo observable. El tramo más intenso puede sentirse como desilusión o ruptura, pero la lectura no termina ahí: después aparece una energía de apertura, contacto y movimiento que favorece oportunidades concretas.',love:'En vínculos, el eje está en salir de la intermitencia y la idealización. Puede haber conexión y, aun así, faltar presencia, empatía o reciprocidad. La invitación es no romantizar conductas que se repiten y lastiman. El punto de inflexión llega cuando elegís respeto y consistencia por encima del apego o de la necesidad de obtener una explicación final.',work:'En trabajo y recursos el tono cambia. Después de una etapa más trabada aparece la posibilidad de una llamada, ayuda, propuesta, contratación o reconocimiento. Conviene leerlo como tendencia, no como promesa: lo fértil está en estar disponible, responder con claridad y sostener condiciones concretas si surge una oportunidad.',inner:'La parte más profunda habla de distinguir intuición de necesidad. Saber que algo no encaja no requiere seguir buscando una señal externa que lo confirme. La claridad puede doler cuando desmonta una ilusión, pero también libera energía que estaba atrapada en esperar, justificar o insistir.',ritual:'Elegí una situación que hoy te genere duda. Dividí una hoja en dos: “lo que imagino” y “lo que realmente veo”. Tomá la próxima decisión a partir de la segunda columna.',question:'¿Qué necesito dejar de idealizar o perseguir para recuperar claridad y abrirme a una oportunidad más firme?',accent:'fuego',sourceTitle:'La verdad sale a la luz; tu gran suerte comienza hoy',sourceUrl:'https://www.youtube.com/watch?v=j_fkjOeaPfI',sourceDate:'3 oct 2026',sourceNote:'Versión editorial basada en la tirada de Beatriz. Se omite el bloque promocional y no se reproducen frases del video.'},
   {key:'capricornio',name:'Capricornio',glyph:'♑',dates:'22 dic · 19 ene',element:'Tierra',mood:'Responsabilidad con sentido',title:'No todo lo que podés sostener te corresponde sostenerlo.',summary:'La estructura, el compromiso y los objetivos están presentes. Esta lectura de ejemplo pregunta por el costo invisible de ser siempre quien aguanta o resuelve.',love:'La vulnerabilidad puede ser una forma de responsabilidad compartida, no una falla en tu fortaleza.',work:'Revisá si una meta sigue siendo tuya o si quedó funcionando por inercia, prestigio o deber.',inner:'Descansar una carga también puede ser una decisión madura.',ritual:'Hacé una lista breve de responsabilidades y marcá cuáles elegiste, cuáles heredaste y cuáles ya podrían terminar.',question:'¿Qué responsabilidad sigo cargando aunque ya no represente la vida que quiero construir?',accent:'tierra'},
   {key:'acuario',name:'Acuario',glyph:'♒',dates:'20 ene · 18 feb',element:'Aire',mood:'Diferencia con pertenencia',title:'Ser distinto no obliga a estar lejos.',summary:'Una idea nueva, una necesidad de independencia o una mirada poco convencional puede estar tomando fuerza. La pregunta simbólica es cómo darle forma sin convertir autonomía en desconexión.',love:'Podés necesitar más libertad dentro de un vínculo, no necesariamente menos vínculo.',work:'Pensar diferente suma cuando encontrás una forma clara de comunicar por qué ese cambio mejora algo real.',inner:'Tu singularidad no necesita oposición permanente para existir.',ritual:'Explicá una idea importante en palabras que alguien muy distinto a vos pueda comprender.',question:'¿Cómo puedo ser fiel a mi diferencia sin aislarme ni vivir reaccionando contra lo establecido?',accent:'aire'},
   {key:'piscis',name:'Piscis',glyph:'♓',dates:'19 feb · 20 mar',element:'Agua',mood:'Intuición con anclaje',title:'Lo sutil también necesita una forma.',summary:'Sensibilidad, imaginación e intuición aparecen muy disponibles. Esta lectura de ejemplo invita a recibirlas sin perder el criterio que permite distinguir una señal interna de una proyección.',love:'Escuchar el clima emocional puede ser valioso, siempre que también haya preguntas directas y límites claros.',work:'Una intuición creativa puede transformarse en algo concreto si le asignás tiempo, estructura y fecha.',inner:'No necesitás apagar la sensibilidad; necesitás un lugar desde donde sostenerla.',ritual:'Tomá una intuición y escribí qué hecho observable la apoya y qué parte sigue siendo solamente sensación.',question:'¿Qué intuición merece atención y qué necesito verificar antes de convertirla en certeza?',accent:'agua'},
@@ -49,7 +53,7 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
   return <div className="horoscope-home">
     <section className="horoscope-hero">
       <div className="horoscope-hero-copy">
-        <span className="demo-pill">Vista previa · contenido de ejemplo</span>
+        <span className="demo-pill">{selected.sourceTitle?'Sagitario · fuente real · otros signos en demostración':'Vista previa · contenido de ejemplo'}</span>
         <span className="horoscope-kicker">HORÓSCOPOS · TAROT · MIRADA SIMBÓLICA</span>
         <h1>Un espacio para leer el clima del momento.</h1>
         <p>Horóscopos con una voz más íntima, menos automática. Elegí tu signo, recorré la lectura y, si algo te toca de cerca, profundizalo con una tirada.</p>
@@ -74,7 +78,7 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
     <section className="zodiac-section" id="zodiac">
       <div className="section-heading">
         <div><span className="horoscope-kicker">LOS 12 SIGNOS</span><h2>Elegí el tuyo.</h2></div>
-        <p>Esta primera versión usa textos de demostración. El próximo paso será decidir de dónde llegan los contenidos reales y con qué frecuencia se actualizan.</p>
+        <p>Sagitario ya usa una lectura real de Beatriz convertida a formato editorial. Los otros once signos siguen con textos de demostración hasta definir sus fuentes.</p>
       </div>
       <div className="zodiac-grid">
         {signs.map(sign=><button key={sign.key} className={`zodiac-card ${selectedKey===sign.key?'active':''}`} onClick={()=>selectSign(sign.key)}>
@@ -90,9 +94,10 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
       <div className="sign-reading-head">
         <div className="sign-monogram"><span>{selected.glyph}</span></div>
         <div className="sign-title">
-          <span className="horoscope-kicker">LECTURA DE EJEMPLO · {selected.element.toUpperCase()}</span>
+          <span className="horoscope-kicker">{selected.sourceTitle?'LECTURA EDITORIAL · FUENTE REAL':`LECTURA DE EJEMPLO · ${selected.element.toUpperCase()}`}</span>
           <h2>{selected.name}</h2>
           <p>{selected.dates} · <strong>{selected.mood}</strong></p>
+          {selected.sourceTitle&&<p><small>Fuente: Beatriz · Tarot y Guía Espiritual · {selected.sourceDate}</small><br/><a href={selected.sourceUrl} target="_blank" rel="noreferrer">Ver video original ↗</a></p>}
         </div>
         <button className="change-sign" onClick={()=>document.getElementById('zodiac')?.scrollIntoView({behavior:'smooth'})}>Cambiar signo ↑</button>
       </div>
@@ -101,6 +106,7 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
         <span>CLIMA DEL MOMENTO</span>
         <h3>{selected.title}</h3>
         <p>{selected.summary}</p>
+        {selected.sourceNote&&<p><small>{selected.sourceNote}</small></p>}
       </div>
 
       <div className="reading-grid">
@@ -134,6 +140,6 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
       <div className="future-chips"><span>Horóscopo diario</span><span>Horóscopo semanal</span><span>Videos y mensajes</span><span>Carta del día</span><span>Tiradas temáticas</span></div>
     </section>
 
-    <footer className="horoscope-footer"><span>✦ VISTA ESOTÉRICA</span><p>Contenido simbólico y reflexivo. Esta versión contiene textos de demostración.</p></footer>
+    <footer className="horoscope-footer"><span>✦ VISTA ESOTÉRICA</span><p>Contenido simbólico y reflexivo. Sagitario usa una fuente real en versión editorial; los otros signos continúan como demostración.</p></footer>
   </div>;
 }
