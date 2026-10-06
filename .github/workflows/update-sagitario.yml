@@ -16,8 +16,8 @@ jobs:
     timeout-minutes: 45
 
     env:
-      CHANNEL_ID: UC8Szmf6Z5yVAm2MtFcCp1WA
-      CHANNEL_VIDEOS_URL: https://www.youtube.com/@tarotyguiaespiritual/videos
+      CHANNEL_HANDLE: '@TarotdeTallulah'
+      CHANNEL_VIDEOS_URL: https://www.youtube.com/@TarotdeTallulah/videos
       SIGN: sagitario
 
     steps:
@@ -58,7 +58,6 @@ jobs:
           python <<'PY'
           import json, os, sys
 
-          expected_channel = os.environ['CHANNEL_ID']
           match_terms = ('sagitario', 'sagittarius')
           data = json.load(open('/tmp/vista-esoterica/search.json', encoding='utf-8'))
           entries = data.get('entries') or []
@@ -66,13 +65,13 @@ jobs:
           selected_entry = None
           for entry in entries:
               video_id = entry.get('id')
-              title = (entry.get('title') or '')
+              title = entry.get('title') or ''
               if video_id and any(term in title.lower() for term in match_terms):
                   selected_entry = entry
                   break
 
           if not selected_entry:
-              print('No se encontro un video reciente de Sagitario/Sagittarius en el canal configurado.', file=sys.stderr)
+              print('No se encontro un video reciente de Sagitario/Sagittarius en Tarot de Tallulah.', file=sys.stderr)
               print('Titulos recientes vistos por yt-dlp:', file=sys.stderr)
               for entry in entries[:20]:
                   print(f"- {entry.get('title') or '(sin titulo)'} [{entry.get('id') or '?'}]", file=sys.stderr)
@@ -88,7 +87,7 @@ jobs:
               'title': title,
               'webpage_url': video_url,
               'upload_date': upload_date,
-              'channel_id': expected_channel,
+              'channel_handle': os.environ['CHANNEL_HANDLE'],
           }
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
@@ -208,8 +207,8 @@ jobs:
               'sign': 'sagitario',
               'status': 'transcribed-pending-editorial',
               'source': {
-                  'name': 'Beatriz · Tarot y Guía Espiritual',
-                  'channel_id': os.environ['CHANNEL_ID'],
+                  'name': 'Tarot de Tallulah',
+                  'channel_handle': os.environ['CHANNEL_HANDLE'],
                   'video_id': meta.get('id'),
                   'title': meta.get('title'),
                   'video_url': meta.get('webpage_url'),
@@ -247,7 +246,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m 'content: ingest latest Sagittarius source'
+          git commit -m 'content: ingest latest Sagittarius source from Tallulah'
           git push origin HEAD:main
           echo 'changed=true' >> "$GITHUB_OUTPUT"
 
@@ -255,7 +254,7 @@ jobs:
         run: |
           echo '### Actualizacion Sagitario' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Canal: Beatriz · Tarot y Guía Espiritual' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Canal: Tarot de Tallulah' >> "$GITHUB_STEP_SUMMARY"
           echo '- Video: ${{ steps.video.outputs.title }}' >> "$GITHUB_STEP_SUMMARY"
           echo '- Video ID: ${{ steps.video.outputs.video_id }}' >> "$GITHUB_STEP_SUMMARY"
           echo '- Resultado: transcripcion obtenida y verificada por hash/conteo; el texto completo no se publica en el repo.' >> "$GITHUB_STEP_SUMMARY"
