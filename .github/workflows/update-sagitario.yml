@@ -60,21 +60,17 @@ jobs:
           import json, os, subprocess, sys
 
           expected_channel = os.environ['CHANNEL_ID']
-          sign = os.environ['SIGN'].lower()
+          match_terms = ('sagitario', 'sagittarius')
           data = json.load(open('/tmp/vista-esoterica/search.json', encoding='utf-8'))
           entries = data.get('entries') or []
 
-          # Primero usamos los títulos de la lista plana: es más rápido y evita
-          # consultar individualmente decenas de videos.
           candidate_ids = []
           for entry in entries:
               video_id = entry.get('id')
               title = (entry.get('title') or '').lower()
-              if video_id and sign in title:
+              if video_id and any(term in title for term in match_terms):
                   candidate_ids.append(video_id)
 
-          # Fallback: si el título plano no trae el signo, inspeccionamos metadatos
-          # de los videos recientes y buscamos también en descripción/etiquetas.
           if not candidate_ids:
               candidate_ids = [e.get('id') for e in entries[:30] if e.get('id')]
 
@@ -100,14 +96,14 @@ jobs:
                   meta.get('description') or '',
                   ' '.join(meta.get('tags') or []),
               ]).lower()
-              if sign not in haystack:
+              if not any(term in haystack for term in match_terms):
                   continue
 
               selected = meta
               break
 
           if not selected:
-              print('No se encontro un video reciente de Sagitario en el canal configurado.', file=sys.stderr)
+              print('No se encontro un video reciente de Sagitario/Sagittarius en el canal configurado.', file=sys.stderr)
               print('Titulos recientes vistos por yt-dlp:', file=sys.stderr)
               for entry in entries[:20]:
                   print(f"- {entry.get('title') or '(sin titulo)'} [{entry.get('id') or '?'}]", file=sys.stderr)
