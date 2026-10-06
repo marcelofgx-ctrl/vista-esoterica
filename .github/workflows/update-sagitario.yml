@@ -2,6 +2,10 @@ name: Actualizar Sagitario
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-sagitario.yml'
 
 permissions:
   contents: write
@@ -129,7 +133,7 @@ jobs:
             '${{ steps.video.outputs.video_url }}' || true
 
           python <<'PY'
-          import glob, html, os, re, sys
+          import glob, html, re, sys
 
           files = glob.glob('/tmp/vista-esoterica/captions/*.vtt')
           if not files:
@@ -210,8 +214,6 @@ jobs:
           method = open('/tmp/vista-esoterica/method.txt', encoding='utf-8').read().strip()
           meta = json.load(open('/tmp/vista-esoterica/video.json', encoding='utf-8'))
 
-          # No guardamos ni publicamos la transcripcion completa de un tercero.
-          # Conservamos solo huella, recuento y metadatos para demostrar que fue procesada.
           record = {
               'sign': 'sagitario',
               'status': 'transcribed-pending-editorial',
