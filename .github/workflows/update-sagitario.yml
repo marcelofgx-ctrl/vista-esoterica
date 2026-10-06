@@ -1,0 +1,276 @@
+name: Actualizar Sagitario
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  update-sagitario:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      CHANNEL_ID: UC8Szmf6Z5yVAm2MtFcCp1WA
+      CHANNEL_SEARCH_URL: https://www.youtube.com/@tarotyguiaespiritual/search?query=sagitario
+      SIGN: sagitario
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install yt-dlp faster-whisper
+
+      - name: Find latest Sagittarius video
+        id: video
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/vista-esoterica
+
+          yt-dlp \
+            --flat-playlist \
+            --playlist-end 12 \
+            --dump-single-json \
+            "$CHANNEL_SEARCH_URL" \
+            > /tmp/vista-esoterica/search.json
+
+          python <<'PY'
+          import json, os, subprocess, sys
+
+          expected_channel = os.environ['CHANNEL_ID']
+          data = json.load(open('/tmp/vista-esoterica/search.json', encoding='utf-8'))
+          entries = data.get('entries') or []
+
+          selected = None
+          for entry in entries:
+              video_id = entry.get('id')
+              if not video_id:
+                  continue
+              url = f'https://www.youtube.com/watch?v={video_id}'
+              try:
+                  raw = subprocess.check_output(
+                      ['yt-dlp', '--skip-download', '--dump-single-json', url],
+                      text=True,
+                      stderr=subprocess.DEVNULL,
+                      timeout=60,
+                  )
+                  meta = json.loads(raw)
+              except Exception:
+                  continue
+
+              if meta.get('channel_id') != expected_channel:
+                  continue
+
+              haystack = ' '.join([
+                  meta.get('title') or '',
+                  meta.get('description') or '',
+                  ' '.join(meta.get('tags') or []),
+              ]).lower()
+              if 'sagitario' not in haystack:
+                  continue
+
+              selected = meta
+              break
+
+          if not selected:
+              print('No se encontro un video reciente de Sagitario en el canal configurado.', file=sys.stderr)
+              sys.exit(2)
+
+          video_id = selected['id']
+          title = selected.get('title') or ''
+          video_url = selected.get('webpage_url') or f'https://www.youtube.com/watch?v={video_id}'
+          upload_date = selected.get('upload_date') or ''
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f'video_id={video_id}\n')
+              out.write(f'video_url={video_url}\n')
+              out.write(f'upload_date={upload_date}\n')
+              out.write('title<<EOF\n')
+              out.write(title + '\nEOF\n')
+
+          json.dump(selected, open('/tmp/vista-esoterica/video.json', 'w', encoding='utf-8'), ensure_ascii=False)
+          print(f'Video seleccionado: {title} ({video_id})')
+          PY
+
+      - name: Try YouTube captions first
+        id: captions
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/vista-esoterica
+          mkdir -p captions
+
+          yt-dlp \
+            --skip-download \
+            --write-subs \
+            --write-auto-subs \
+            --sub-langs 'es.*,es' \
+            --sub-format vtt \
+            -o 'captions/source.%(ext)s' \
+            '${{ steps.video.outputs.video_url }}' || true
+
+          python <<'PY'
+          import glob, html, os, re, sys
+
+          files = glob.glob('/tmp/vista-esoterica/captions/*.vtt')
+          if not files:
+              sys.exit(1)
+
+          text_parts = []
+          previous = None
+          for path in files[:1]:
+              for line in open(path, encoding='utf-8', errors='ignore'):
+                  line = line.strip()
+                  if not line or line.startswith('WEBVTT') or '-->' in line or line.isdigit():
+                      continue
+                  line = re.sub(r'<[^>]+>', '', line)
+                  line = html.unescape(line)
+                  line = re.sub(r'\s+', ' ', line).strip()
+                  if not line or line == previous:
+                      continue
+                  previous = line
+                  text_parts.append(line)
+
+          transcript = ' '.join(text_parts).strip()
+          if len(transcript) < 300:
+              sys.exit(1)
+
+          open('/tmp/vista-esoterica/transcript.txt', 'w', encoding='utf-8').write(transcript)
+          open('/tmp/vista-esoterica/method.txt', 'w', encoding='utf-8').write('youtube-captions')
+          print(f'Subtitulos obtenidos: {len(transcript.split())} palabras')
+          PY
+
+      - name: Fallback to local Whisper
+        if: steps.captions.outcome != 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/vista-esoterica
+
+          yt-dlp \
+            -x \
+            --audio-format mp3 \
+            --audio-quality 5 \
+            -o 'audio.%(ext)s' \
+            '${{ steps.video.outputs.video_url }}'
+
+          python <<'PY'
+          from faster_whisper import WhisperModel
+          import glob
+
+          audio = glob.glob('/tmp/vista-esoterica/audio.*')[0]
+          model = WhisperModel('base', device='cpu', compute_type='int8')
+          segments, info = model.transcribe(audio, language='es', vad_filter=True, beam_size=3)
+
+          parts = []
+          for segment in segments:
+              text = segment.text.strip()
+              if text:
+                  parts.append(text)
+
+          transcript = ' '.join(parts).strip()
+          if len(transcript) < 300:
+              raise RuntimeError('Whisper no produjo una transcripcion util')
+
+          open('/tmp/vista-esoterica/transcript.txt', 'w', encoding='utf-8').write(transcript)
+          open('/tmp/vista-esoterica/method.txt', 'w', encoding='utf-8').write('local-whisper')
+          print(f'Whisper completo: {len(transcript.split())} palabras')
+          PY
+
+      - name: Build safe ingestion record
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          import hashlib, json, os, re
+          from datetime import datetime, timezone
+
+          transcript_path = '/tmp/vista-esoterica/transcript.txt'
+          transcript = open(transcript_path, encoding='utf-8').read()
+          transcript = re.sub(r'\s+', ' ', transcript).strip()
+          method = open('/tmp/vista-esoterica/method.txt', encoding='utf-8').read().strip()
+          meta = json.load(open('/tmp/vista-esoterica/video.json', encoding='utf-8'))
+
+          # No guardamos ni publicamos la transcripcion completa de un tercero.
+          # Conservamos solo huella, recuento y metadatos para demostrar que fue procesada.
+          record = {
+              'sign': 'sagitario',
+              'status': 'transcribed-pending-editorial',
+              'source': {
+                  'name': 'Beatriz · Tarot y Guía Espiritual',
+                  'channel_id': os.environ['CHANNEL_ID'],
+                  'video_id': meta.get('id'),
+                  'title': meta.get('title'),
+                  'video_url': meta.get('webpage_url') or f"https://www.youtube.com/watch?v={meta.get('id')}",
+                  'published_at': meta.get('upload_date'),
+              },
+              'ingestion': {
+                  'method': method,
+                  'word_count': len(transcript.split()),
+                  'sha256': hashlib.sha256(transcript.encode('utf-8')).hexdigest(),
+                  'processed_at': datetime.now(timezone.utc).isoformat(),
+              }
+          }
+
+          path = 'public/content/horoscopes/sagitario-ingest.json'
+          os.makedirs(os.path.dirname(path), exist_ok=True)
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(record, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+
+          print(json.dumps(record, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit ingestion record
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'vista-esoterica-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add public/content/horoscopes/sagitario-ingest.json
+
+          if git diff --cached --quiet; then
+            echo 'No hay cambios que guardar.'
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m 'content: ingest latest Sagittarius source'
+          git push origin HEAD:main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Trigger site deploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy-pages.yml --ref main
+
+      - name: Summary
+        run: |
+          echo '### Actualizacion Sagitario' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Canal verificado: Beatriz · Tarot y Guía Espiritual' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Video: ${{ steps.video.outputs.title }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Video ID: ${{ steps.video.outputs.video_id }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Resultado: transcripcion procesada localmente; no se publica la transcripcion completa.' >> "$GITHUB_STEP_SUMMARY"
