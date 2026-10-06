@@ -1,6 +1,7 @@
 import React, { CSSProperties, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { buildReading, Drawn, shuffleDeck, spreadPositions } from './tarot';
+import { tarotImageUrl } from './cardImages';
 import './styles.css';
 
 type Stage = 'landing'|'form'|'prepare'|'cut'|'select'|'reveal'|'reading'|'clarify';
@@ -30,6 +31,7 @@ function App(){
   const [revealed,setRevealed]=useState<number[]>([]);
   const [clarifierTarget,setClarifierTarget]=useState<number|null>(null);
   const dragStart=useRef<{x:number;y:number;index:number}|null>(null);
+  const suppressClick=useRef(false);
 
   const shuffled=useMemo(()=>shuffleDeck(seed),[seed]);
   const deck=useMemo(()=>[...shuffled.slice(cutIndex),...shuffled.slice(0,cutIndex)],[shuffled,cutIndex]);
@@ -47,7 +49,9 @@ function App(){
     const source=deck[deckIndex];
     if(stage==='clarify'&&clarifierTarget!==null){
       if(clarifiers.length>=3)return;
-      setDrawn(prev=>[...prev,{...source,deckIndex,position:7+clarifiers.length,clarifierFor:clarifierTarget}]);
+      const target=clarifierTarget;
+      setDrawn(prev=>[...prev,{...source,deckIndex,position:7+prev.filter(d=>d.clarifierFor!==undefined).length,clarifierFor:target}]);
+      setClarifierTarget(null);
       setStage('reading');
       return;
     }
@@ -63,12 +67,24 @@ function App(){
     dragStart.current={x:e.clientX,y:e.clientY,index};
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
   }
+
   function onCardPointerUp(e:React.PointerEvent,index:number){
     const start=dragStart.current;
     dragStart.current=null;
     if(!start||start.index!==index)return;
     const distance=Math.hypot(e.clientX-start.x,e.clientY-start.y);
-    if(distance>=8||distance<8)chooseCard(index);
+    if(distance>=12){
+      suppressClick.current=true;
+      chooseCard(index);
+    }
+  }
+
+  function onCardClick(index:number){
+    if(suppressClick.current){
+      suppressClick.current=false;
+      return;
+    }
+    chooseCard(index);
   }
 
   function persist(){
@@ -136,14 +152,14 @@ function App(){
       <div className="table-copy">
         <span className="eyebrow">{stage==='clarify'?'ARCANO ACLARATORIO':stage==='reveal'?'05 · REVELACIÓN':'04 · SELECCIÓN'}</span>
         <h2>{stage==='clarify'?'Elegí una carta para profundizar.':stage==='reveal'?'La Cruz Profunda':`Elegí ${7-initialCards.length} ${7-initialCards.length===1?'carta':'cartas'}.`}</h2>
-        <p>{stage==='reveal'?'El mazo se retira. Las cartas permanecen en el lugar exacto de la tirada.':stage==='clarify'?`La carta se vinculará con ${spreadPositions[clarifierTarget??2].label}.`:'Todo el mazo está frente a vos. Tocá o arrastrá la carta que te llame.'}</p>
+        <p>{stage==='reveal'?'El mazo se retira. Las cartas permanecen en el lugar exacto de la tirada.':stage==='clarify'?`La carta se vinculará con ${spreadPositions[clarifierTarget??2].label}. Tocala o arrastrala para elegirla.`:'Todo el mazo está frente a vos. Tocá o arrastrá la carta que te llame.'}</p>
       </div>
 
       {(stage==='select'||stage==='clarify')&&<div className="double-fan" aria-label="Mazo extendido">
         {[deck.slice(0,39),deck.slice(39)].map((half,row)=><div className={`fan fan-${row+1}`} key={row}>
           {half.map((entry,j)=>{
             const index=row*39+j; const t=j/(half.length-1); const x=3+t*94; const curve=56-Math.sqrt(Math.max(0,1-Math.pow((t-.5)*2,2)))*45; const angle=(t-.5)*54;
-            return <button key={entry.card.id} disabled={used.has(index)} aria-label={`Carta ${index+1}`} onPointerDown={e=>onCardPointerDown(e,index)} onPointerUp={e=>onCardPointerUp(e,index)} className={`fan-card ${used.has(index)?'used':''}`} style={{'--x':`${x}%`,'--y':`${curve}px`,'--angle':`${angle}deg`,'--z':j+1} as CSSProperties}><span>✦</span></button>
+            return <button key={entry.card.id} disabled={used.has(index)} aria-label={`Carta ${index+1}`} onPointerDown={e=>onCardPointerDown(e,index)} onPointerUp={e=>onCardPointerUp(e,index)} onClick={()=>onCardClick(index)} className={`fan-card ${used.has(index)?'used':''}`} style={{'--x':`${x}%`,'--y':`${curve}px`,'--angle':`${angle}deg`,'--z':j+1} as CSSProperties}><span>✦</span></button>
           })}
         </div>)}
       </div>}
@@ -152,7 +168,7 @@ function App(){
         {spreadPositions.map((pos,i)=>{
           const d=initialCards[i]; const isOpen=revealed.includes(i);
           return <button key={pos.key} className={`spread-slot slot-${i+1} ${d?'occupied':''} ${isOpen?'flipped':''}`} onClick={()=>stage==='reveal'&&d&&!isOpen&&setRevealed(r=>[...r,i])}>
-            {!d?<span className="slot-number">{i+1}</span>:<div className="flip-inner"><div className="card-back">✦</div><div className={`card-face ${d.reversed?'reversed':''}`}><small>{pos.label}</small><strong>{d.card.name}</strong><span>{d.card.keywords.join(' · ')}</span>{d.reversed&&<em>Invertida</em>}</div></div>}
+            {!d?<span className="slot-number">{i+1}</span>:<div className="flip-inner"><div className="card-back">✦</div><div className={`card-face ${d.reversed?'reversed':''}`}><img src={tarotImageUrl(d.card,360)} alt={d.card.name} loading="lazy"/><div className="card-caption"><small>{pos.label}</small><strong>{d.card.name}</strong><span>{d.card.keywords.join(' · ')}</span>{d.reversed&&<em>Invertida</em>}</div></div></div>}
             {clarifiers.filter(c=>c.clarifierFor===i).map((c,k)=><span key={k} className="clarifier-chip">{c.card.name}</span>)}
           </button>
         })}
@@ -162,9 +178,9 @@ function App(){
 
     {stage==='reading'&&reading&&<section className="reading panel">
       <span className="eyebrow">06 · LECTURA</span><h2>Tu lectura, {name}</h2><p className="lead">{question||'Lectura general del momento presente'}</p>
-      <div className="reading-cards">{initialCards.map((d,i)=><div key={i}><small>{spreadPositions[i].label}</small><strong>{d.card.name}</strong></div>)}</div>
+      <div className="reading-cards">{initialCards.map((d,i)=><div key={i} className={d.reversed?'reading-card reversed-reading':''}><img src={tarotImageUrl(d.card,260)} alt={d.card.name} loading="lazy"/><small>{spreadPositions[i].label}</small><strong>{d.card.name}</strong>{d.reversed&&<em>Invertida</em>}</div>)}</div>
       {sections.map(([title,text])=><article key={title}><h3>{title}</h3><p>{text}</p></article>)}
-      {clarifiers.map((d,i)=><article className="clarifier-reading" key={i}><h3>Arcano aclaratorio · {spreadPositions[d.clarifierFor!].label}</h3><p><strong>{d.card.name}</strong> aporta {d.card.keywords.join(', ')}. No reemplaza la lectura anterior: la confirma, matiza, tensiona o redirige según el vínculo con esa posición.</p></article>)}
+      {clarifiers.map((d,i)=><article className="clarifier-reading" key={i}><img className={d.reversed?'clarifier-art reversed-art':'clarifier-art'} src={tarotImageUrl(d.card,300)} alt={d.card.name} loading="lazy"/><div><h3>Arcano aclaratorio · {spreadPositions[d.clarifierFor!].label}</h3><p><strong>{d.card.name}</strong> aporta {d.card.keywords.join(', ')}. No reemplaza la lectura anterior: la confirma, matiza, tensiona o redirige según el vínculo con esa posición.</p></div></article>)}
       {clarifiers.length<3&&<section className="questions"><h3>¿Querés profundizar?</h3><p>Elegí un punto que todavía necesite contexto.</p><div><button onClick={()=>{setClarifierTarget(1);setStage('clarify')}}>¿Qué del pasado sigue activo?</button><button onClick={()=>{setClarifierTarget(4);setStage('clarify')}}>¿Qué estoy dejando fuera de mirada?</button><button onClick={()=>{setClarifierTarget(5);setStage('clarify')}}>¿Hacia dónde puede moverse esto?</button></div></section>}
     </section>}
   </main>
