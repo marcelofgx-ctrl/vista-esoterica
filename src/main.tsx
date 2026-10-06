@@ -2,11 +2,12 @@ import React, { CSSProperties, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { buildReading, Drawn, shuffleDeck, spreadPositions } from './tarot';
 import { tarotImageUrl } from './cardImages';
+import { HoroscopeHome } from './HoroscopeHome';
 import './styles.css';
 import './cardArt.css';
 import './interaction.css';
 
-type Stage = 'landing'|'form'|'prepare'|'cut'|'select'|'reveal'|'reading'|'clarify';
+type Stage = 'home'|'landing'|'form'|'prepare'|'cut'|'select'|'reveal'|'reading'|'clarify';
 
 type SavedReading = {
   id:string;
@@ -22,7 +23,7 @@ type SavedReading = {
 const uid=()=>`${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
 
 function App(){
-  const [stage,setStage]=useState<Stage>('landing');
+  const [stage,setStage]=useState<Stage>('home');
   const [name,setName]=useState('');
   const [birthDate,setBirthDate]=useState('');
   const [question,setQuestion]=useState('');
@@ -55,7 +56,7 @@ function App(){
   ];
 
   function reset(){
-    setStage('landing');
+    setStage('home');
     setName('');
     setBirthDate('');
     setQuestion('');
@@ -66,6 +67,13 @@ function App(){
     setRevealed([]);
     setClarifierTarget(null);
     setCandidate(null);
+  }
+
+  function openTarot(suggestedQuestion?:string){
+    setQuestion(suggestedQuestion||'');
+    setCandidate(null);
+    setStage('landing');
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function persist(cardsToSave=drawn){
@@ -179,14 +187,19 @@ function App(){
 
   return <main className="app-shell">
     <header className="topbar">
-      <div className="brand"><span className="sigil">✦</span><span>VISTA ESOTÉRICA</span></div>
-      <button className="link-button" onClick={reset}>Reiniciar</button>
+      <button className="brand brand-button" onClick={reset} aria-label="Volver al inicio"><span className="sigil">✦</span><span>VISTA ESOTÉRICA</span></button>
+      {stage==='home'
+        ?<button className="link-button" onClick={()=>openTarot()}>Tirada</button>
+        :<button className="link-button" onClick={reset}>Inicio</button>}
     </header>
+
+    {stage==='home'&&<HoroscopeHome onTarot={openTarot}/>} 
 
     {stage==='landing'&&<section className="hero screen-centered">
       <span className="eyebrow">Tarot simbólico · lectura profunda</span>
       <h1>Una tirada para mirar lo que se está moviendo en vos.</h1>
       <p>No buscamos una respuesta rápida. La tirada se lee como un mapa integrado: raíz, pasado activo, presente, zona ciega, tendencia y acción.</p>
+      {question&&<div className="carried-question"><small>Pregunta traída desde tu horóscopo</small><strong>{question}</strong></div>}
       <button className="primary" onClick={()=>setStage('form')}>Comenzar una lectura</button>
       <small>Lectura reflexiva y simbólica. No reemplaza asesoramiento médico, psicológico, legal o financiero.</small>
     </section>}
