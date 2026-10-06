@@ -69,6 +69,15 @@ const signs:Sign[] = [
   {key:'piscis',name:'Piscis',glyph:'♓',dates:'19 feb · 20 mar',element:'Agua',mood:'Intuición con anclaje',title:'Lo sutil también necesita una forma.',summary:'Sensibilidad, imaginación e intuición aparecen muy disponibles. Esta lectura de ejemplo invita a recibirlas sin perder el criterio que permite distinguir una señal interna de una proyección.',love:'Escuchar el clima emocional puede ser valioso, siempre que también haya preguntas directas y límites claros.',work:'Una intuición creativa puede transformarse en algo concreto si le asignás tiempo, estructura y fecha.',inner:'No necesitás apagar la sensibilidad; necesitás un lugar desde donde sostenerla.',ritual:'Tomá una intuición y escribí qué hecho observable la apoya y qué parte sigue siendo solamente sensación.',question:'¿Qué intuición merece atención y qué necesito verificar antes de convertirla en certeza?',accent:'agua',dataOrigin:'demo'},
 ];
 
+function formatReadingDate(value?:string){
+  if(!value)return '';
+  const [year,month,day]=value.split('-').map(Number);
+  if(!year||!month||!day)return value;
+  return new Intl.DateTimeFormat('es-UY',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})
+    .format(new Date(Date.UTC(year,month-1,day)))
+    .replaceAll('.','');
+}
+
 export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
   const [selectedKey,setSelectedKey]=useState('sagitario');
   const [externalSagittarius,setExternalSagittarius]=useState<Sign|null>(null);
@@ -115,7 +124,7 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
   return <div className="horoscope-home">
     <section className="horoscope-hero">
       <div className="horoscope-hero-copy">
-        <span className="demo-pill">{selected.dataOrigin==='external'?'Sagitario · contenido externo activo':'Vista previa · contenido de ejemplo'}</span>
+        <span className="demo-pill">{selected.dataOrigin==='external'&&selected.sourceDate?`${selected.name} · lectura ${formatReadingDate(selected.sourceDate)}`:'Vista previa · contenido de ejemplo'}</span>
         <span className="horoscope-kicker">HORÓSCOPOS · TAROT · MIRADA SIMBÓLICA</span>
         <h1>Un espacio para leer el clima del momento.</h1>
         <p>Horóscopos con una voz más íntima, menos automática. Elegí tu signo, recorré la lectura y, si algo te toca de cerca, profundizalo con una tirada.</p>
@@ -140,15 +149,19 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
     <section className="zodiac-section" id="zodiac">
       <div className="section-heading">
         <div><span className="horoscope-kicker">LOS 12 SIGNOS</span><h2>Elegí el tuyo.</h2></div>
-        <p>Sagitario ya se carga desde una fuente de datos separada del código. Los otros once signos siguen como demostración mientras definimos sus fuentes.</p>
+        <p>Cada lectura publicada conserva su propia fecha. Así podés ver inmediatamente a qué día corresponde cada signo, aunque las fuentes los publiquen en momentos distintos.</p>
       </div>
       <div className="zodiac-grid">
-        {signs.map(sign=><button key={sign.key} className={`zodiac-card ${selectedKey===sign.key?'active':''}`} onClick={()=>selectSign(sign.key)}>
-          <span className="zodiac-glyph">{sign.glyph}</span>
-          <span className="zodiac-name">{sign.name}</span>
-          <small>{sign.dates}</small>
-          <em>{sign.element}</em>
-        </button>)}
+        {signs.map(sign=>{
+          const cardSign=sign.key==='sagitario'&&externalSagittarius?externalSagittarius:sign;
+          return <button key={sign.key} className={`zodiac-card ${selectedKey===sign.key?'active':''}`} onClick={()=>selectSign(sign.key)}>
+            <span className="zodiac-glyph">{sign.glyph}</span>
+            <span className="zodiac-name">{sign.name}</span>
+            <small>{sign.dates}</small>
+            {cardSign.sourceDate&&<small>Lectura · {formatReadingDate(cardSign.sourceDate)}</small>}
+            <em>{sign.element}</em>
+          </button>;
+        })}
       </div>
     </section>
 
@@ -159,7 +172,8 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
           <span className="horoscope-kicker">{selected.dataOrigin==='external'?'LECTURA EDITORIAL · REGISTRO EXTERNO':`LECTURA DE EJEMPLO · ${selected.element.toUpperCase()}`}</span>
           <h2>{selected.name}</h2>
           <p>{selected.dates} · <strong>{selected.mood}</strong></p>
-          {selected.sourceTitle&&<p><small>Fuente: {selected.sourceName} · {selected.sourceDate}</small><br/><a href={selected.sourceUrl} target="_blank" rel="noreferrer">Ver video original ↗</a></p>}
+          {selected.sourceDate&&<p><small>Lectura correspondiente al {formatReadingDate(selected.sourceDate)}</small></p>}
+          {selected.sourceTitle&&<p><small>Fuente: {selected.sourceName}</small><br/><a href={selected.sourceUrl} target="_blank" rel="noreferrer">Ver video original ↗</a></p>}
           {selectedKey==='sagitario'&&sourceState==='error'&&<p><small>No se pudo leer la fuente externa; se muestra el respaldo local.</small></p>}
         </div>
         <button className="change-sign" onClick={()=>document.getElementById('zodiac')?.scrollIntoView({behavior:'smooth'})}>Cambiar signo ↑</button>
@@ -198,11 +212,11 @@ export function HoroscopeHome({onTarot}:HoroscopeHomeProps){
 
     <section className="future-content">
       <span className="horoscope-kicker">PILOTO DE CONTENIDO</span>
-      <h2>La interfaz ya no necesita contener el horóscopo.</h2>
-      <p>Sagitario se obtiene desde un registro externo. Cuando pasemos a Supabase, la web conservará esta misma lógica y solo cambiaremos el origen del fetch.</p>
-      <div className="future-chips"><span>Fuente separada</span><span>Contenido reemplazable</span><span>Tarot conectado</span><span>Supabase después</span></div>
+      <h2>Cada signo conserva su lectura y su fecha.</h2>
+      <p>La web puede recibir cada horóscopo por separado y mostrar la fecha real de esa lectura. Cuando una fuente publique una lectura nueva, solamente se reemplaza el registro de ese signo.</p>
+      <div className="future-chips"><span>Fecha por signo</span><span>Última lectura</span><span>Fuente separada</span><span>Tarot conectado</span></div>
     </section>
 
-    <footer className="horoscope-footer"><span>✦ VISTA ESOTÉRICA</span><p>Sagitario usa contenido externo; los otros signos continúan como demostración.</p></footer>
+    <footer className="horoscope-footer"><span>✦ VISTA ESOTÉRICA</span><p>Cada signo puede conservar una fecha de lectura distinta según su última actualización.</p></footer>
   </div>;
 }
