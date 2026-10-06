@@ -18,7 +18,7 @@ jobs:
 
     env:
       CHANNEL_ID: UC8Szmf6Z5yVAm2MtFcCp1WA
-      CHANNEL_SEARCH_URL: https://www.youtube.com/@tarotyguiaespiritual/search?query=sagitario
+      CHANNEL_VIDEOS_URL: https://www.youtube.com/@tarotyguiaespiritual/videos
       SIGN: sagitario
 
     steps:
@@ -51,30 +51,42 @@ jobs:
 
           yt-dlp \
             --flat-playlist \
-            --playlist-end 12 \
+            --playlist-end 50 \
             --dump-single-json \
-            "$CHANNEL_SEARCH_URL" \
+            "$CHANNEL_VIDEOS_URL" \
             > /tmp/vista-esoterica/search.json
 
           python <<'PY'
           import json, os, subprocess, sys
 
           expected_channel = os.environ['CHANNEL_ID']
+          sign = os.environ['SIGN'].lower()
           data = json.load(open('/tmp/vista-esoterica/search.json', encoding='utf-8'))
           entries = data.get('entries') or []
 
-          selected = None
+          # Primero usamos los títulos de la lista plana: es más rápido y evita
+          # consultar individualmente decenas de videos.
+          candidate_ids = []
           for entry in entries:
               video_id = entry.get('id')
-              if not video_id:
-                  continue
+              title = (entry.get('title') or '').lower()
+              if video_id and sign in title:
+                  candidate_ids.append(video_id)
+
+          # Fallback: si el título plano no trae el signo, inspeccionamos metadatos
+          # de los videos recientes y buscamos también en descripción/etiquetas.
+          if not candidate_ids:
+              candidate_ids = [e.get('id') for e in entries[:30] if e.get('id')]
+
+          selected = None
+          for video_id in candidate_ids:
               url = f'https://www.youtube.com/watch?v={video_id}'
               try:
                   raw = subprocess.check_output(
                       ['yt-dlp', '--skip-download', '--dump-single-json', url],
                       text=True,
                       stderr=subprocess.DEVNULL,
-                      timeout=60,
+                      timeout=90,
                   )
                   meta = json.loads(raw)
               except Exception:
@@ -88,7 +100,7 @@ jobs:
                   meta.get('description') or '',
                   ' '.join(meta.get('tags') or []),
               ]).lower()
-              if 'sagitario' not in haystack:
+              if sign not in haystack:
                   continue
 
               selected = meta
@@ -96,6 +108,9 @@ jobs:
 
           if not selected:
               print('No se encontro un video reciente de Sagitario en el canal configurado.', file=sys.stderr)
+              print('Titulos recientes vistos por yt-dlp:', file=sys.stderr)
+              for entry in entries[:20]:
+                  print(f"- {entry.get('title') or '(sin titulo)'} [{entry.get('id') or '?'}]", file=sys.stderr)
               sys.exit(2)
 
           video_id = selected['id']
