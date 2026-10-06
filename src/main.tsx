@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { buildReading, Drawn, shuffleDeck, spreadPositions } from './tarot';
 import { tarotImageUrl } from './cardImages';
 import './styles.css';
+import './cardArt.css';
 
 type Stage = 'landing'|'form'|'prepare'|'cut'|'select'|'reveal'|'reading'|'clarify';
 
