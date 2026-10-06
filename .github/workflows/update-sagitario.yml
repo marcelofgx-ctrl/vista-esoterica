@@ -26,6 +26,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -39,7 +44,7 @@ jobs:
       - name: Install Python tools
         run: |
           python -m pip install --upgrade pip
-          pip install yt-dlp faster-whisper
+          pip install -U "yt-dlp[default]" faster-whisper
 
       - name: Find latest Sagittarius video
         id: video
@@ -49,6 +54,7 @@ jobs:
           mkdir -p /tmp/vista-esoterica
 
           yt-dlp \
+            --js-runtimes node \
             --flat-playlist \
             --playlist-end 50 \
             --dump-single-json \
@@ -111,6 +117,7 @@ jobs:
           mkdir -p captions
 
           yt-dlp \
+            --js-runtimes node \
             --skip-download \
             --write-subs \
             --write-auto-subs \
@@ -158,6 +165,7 @@ jobs:
           cd /tmp/vista-esoterica
 
           yt-dlp \
+            --js-runtimes node \
             -x \
             --audio-format mp3 \
             --audio-quality 5 \
