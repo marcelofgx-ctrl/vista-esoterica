@@ -38,7 +38,7 @@ function App(){
   const deck=useMemo(()=>[...shuffled.slice(cutIndex),...shuffled.slice(0,cutIndex)],[shuffled,cutIndex]);
   const initialCards=drawn.filter(d=>d.clarifierFor===undefined).slice(0,7);
   const used=new Set(drawn.map(d=>d.deckIndex));
-  const reading=initialCards.length===7?buildReading(initialCards):null;
+  const reading=initialCards.length===7?buildReading(initialCards,question):null;
   const clarifiers=drawn.filter(d=>d.clarifierFor!==undefined);
 
   function reset(){
