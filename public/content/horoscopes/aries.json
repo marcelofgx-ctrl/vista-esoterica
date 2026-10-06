@@ -1,0 +1,9 @@
+{
+  "id": "tallulah-aries-pending",
+  "sign": "aries",
+  "status": "pending",
+  "period_type": "source-reading",
+  "published_at": "",
+  "source": {"name":"Tarot de Tallulah","title":"Pendiente de última lectura verificable","video_url":"https://www.youtube.com/@TarotdeTallulah","transcript_status":"pending-source","transcript_raw":null,"transcript_clean":null,"note":"No se publica hasta verificar el video más reciente de Aries."},
+  "editorial": {"mood":"Lectura pendiente","title":"Esperando fuente verificada.","summary":"","love":"","work":"","inner":"","ritual":"","question":""}
+}
